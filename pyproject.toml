@@ -1,11 +1,32 @@
 [build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
 
 [project]
-name = "tactus"
-version = "0.1.0"
+name = "tactus_align"
+version = "1.0.0"
+dependencies = [
+    "librosa>=0.11.0",
+    "matplotlib>=3.11.1",
+    "music21>=10.5.0",
+    "numba>=0.66.0",
+    "numpy==2.4.6",
+    "pretty_midi>=0.2.11",
+    "scipy>=1.18.0"
+]
+authors = [
+  { name="Valentin Crogiez", email="crogiez.valentin@gmail.com" },
+]
+description = "A package for working on Audio-to-Score Alignemnt"
 readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[project.urls]
+Homepage = "https://github.com/valcrog/TACTUS"
+Issues = "https://github.com/valcrog/TACTUS/issues"

@@ -7,7 +7,8 @@ import numpy as np
 import music21 as m21
 import librosa
 import pretty_midi
-from tactus.aligners import AlignmentResult
+
+from .aligners import AlignmentResult
 
 def load_score(path: str, format: str = None) -> m21.stream.Score:
     """Parse the given file as a music21 `Score`

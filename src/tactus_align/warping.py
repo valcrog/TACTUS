@@ -4,8 +4,9 @@ from scipy.interpolate import interp1d
 import music21 as m21
 import pretty_midi
 from librosa import frames_to_time
-from tactus.pipeline import PipelineResult
-from tactus.io import get_midi_object
+
+from .pipeline import PipelineResult
+from .io import get_midi_object
 
 def path_to_time_map(path, hop_length, sr):
     """Convert a frame-wise warping path into (t_X, t_Y) pairs in seconds.

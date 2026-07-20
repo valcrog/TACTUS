@@ -1,6 +1,7 @@
 """High-level pipeline tying together feature extraction, cost, and alignment."""
 from dataclasses import dataclass
 import numpy as np
+
 from .features import FeatureExtractor, ChromaSTFT
 from .cost import compute_cost_matrix
 from .aligners import Aligner, BasicDTW, AlignmentResult
