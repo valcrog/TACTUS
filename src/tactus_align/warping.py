@@ -6,7 +6,7 @@ import pretty_midi
 from librosa import frames_to_time
 
 from .pipeline import PipelineResult
-from .io import get_midi_object
+from .io import get_midi_object, synthesize_midi
 
 def path_to_time_map(path, hop_length, sr):
     """Convert a frame-wise warping path into (t_X, t_Y) pairs in seconds.
@@ -119,7 +119,8 @@ def warp_synth(score: m21.stream.Score, result: PipelineResult, mode: str = 'X_t
     """
 
     midi_object = warp_midi(score, result, mode=mode)
-    X_warped = midi_object.fluidsynth(fs=result.sr)
+    fp = midi_object.write("temp.mid")
+    X_warped = synthesize_midi(fp, result.sr)
 
     return X_warped
 

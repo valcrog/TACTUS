@@ -7,6 +7,7 @@ import numpy as np
 import music21 as m21
 import librosa
 import pretty_midi
+import tinysoundfont
 
 from .aligners import AlignmentResult
 
@@ -42,21 +43,41 @@ def get_midi_object(score: m21.stream.Score) -> pretty_midi.PrettyMIDI:
 
     return pretty_midi.PrettyMIDI(fp)
 
-def synthesize_score(score: m21.stream.Score, sr: float = 22050) -> Tuple[np.ndarray, int | float]:
+def synthesize_midi(midi_path, sr: float = 22050, soundfont="TimGM6mb.sf2") -> np.ndarray:
+    synth = tinysoundfont.Synth(samplerate=sr)
+    sfid = synth.sfload(soundfont)
+
+    for chan in range(16):
+        synth.program_select(chan, sfid, 0, 0)
+
+    seq = tinysoundfont.Sequencer(synth)
+    seq.midi_load(midi_path)
+
+    chunks = []
+    while not seq.is_empty():
+        chunks.append(synth.generate(1024).copy())
+    
+    chunks.append(synth.generate(int(sr)).copy()) # release for the last notes
+
+    audio = np.concatenate(chunks)
+    return audio.mean(axis=1)
+
+def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont="TimGM6mb.sf2") -> Tuple[np.ndarray, int | float]:
     """Synthesize a given music21 score to a floating point time series using fluidsynth
 
     Args:
         score (m21.stream.Score): the score to synthesize
         sr (float, optional): sampling rate to synthesize at. Defaults to 22050.
+        soundfont (str, optional): path to the soundfont used for synthesis. Defaults to Grand Piano.
 
     Returns:
         a tuple (y, sr) containing
         - y (np.ndarray) : audio time series.
         - sr (number > 0 [scalar]) : sampling rate of ``y``
     """
-    midi_object = get_midi_object(score)
+    fp = score.write('midi')
 
-    return (midi_object.fluidsynth(fs=sr), sr)
+    return (synthesize_midi(fp, sr, soundfont), sr)
 
 def trim_silence(y: np.ndarray, threshold: float = 30) -> np.ndarray:
     """Trim leading and trailing silence from the audio signal

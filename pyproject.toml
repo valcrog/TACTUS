@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tactus_align"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
     "librosa>=0.11.0",
     "matplotlib>=3.11.1",
@@ -12,7 +12,9 @@ dependencies = [
     "numba>=0.66.0",
     "numpy==2.4.6",
     "pretty_midi>=0.2.11",
-    "scipy>=1.18.0"
+    "PyAudio==0.2.14",
+    "scipy>=1.18.0",
+    "tinysoundfont>=0.3.7"
 ]
 authors = [
   { name="Valentin Crogiez", email="crogiez.valentin@gmail.com" },
