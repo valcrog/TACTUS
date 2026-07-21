@@ -73,9 +73,9 @@ def synthesize_midi(midi_path: str, sr: float = 22050, soundfont=None) -> np.nda
 
     chunks = []
     while not seq.is_empty():
-        chunks.append(synth.generate(1024).copy())
+        chunks.append(np.array(synth.generate(1024)))
     
-    chunks.append(synth.generate(int(sr)).copy()) # release for the last notes
+    chunks.append(np.array(synth.generate(int(sr)))) # release for the last notes
 
     audio = np.concatenate(chunks)
     return audio.mean(axis=1)
