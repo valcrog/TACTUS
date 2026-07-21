@@ -43,7 +43,7 @@ def get_midi_object(score: m21.stream.Score) -> pretty_midi.PrettyMIDI:
 
     return pretty_midi.PrettyMIDI(fp)
 
-def synthesize_midi(midi_path, sr: float = 22050, soundfont="TimGM6mb.sf2") -> np.ndarray:
+def synthesize_midi(midi_path, sr: float = 22050, soundfont="data/TimGM6mb.sf2") -> np.ndarray:
     synth = tinysoundfont.Synth(samplerate=sr)
     sfid = synth.sfload(soundfont)
 
@@ -62,7 +62,7 @@ def synthesize_midi(midi_path, sr: float = 22050, soundfont="TimGM6mb.sf2") -> n
     audio = np.concatenate(chunks)
     return audio.mean(axis=1)
 
-def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont="TimGM6mb.sf2") -> Tuple[np.ndarray, int | float]:
+def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont="data/TimGM6mb.sf2") -> Tuple[np.ndarray, int | float]:
     """Synthesize a given music21 score to a floating point time series using fluidsynth
 
     Args:

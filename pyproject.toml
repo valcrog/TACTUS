@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tactus_align"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
     "librosa>=0.11.0",
     "matplotlib>=3.11.1",
