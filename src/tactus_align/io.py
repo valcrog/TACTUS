@@ -8,6 +8,7 @@ import music21 as m21
 import librosa
 import pretty_midi
 import tinysoundfont
+from importlib.resources import files
 
 from .aligners import AlignmentResult
 
@@ -43,7 +44,24 @@ def get_midi_object(score: m21.stream.Score) -> pretty_midi.PrettyMIDI:
 
     return pretty_midi.PrettyMIDI(fp)
 
-def synthesize_midi(midi_path, sr: float = 22050, soundfont="data/TimGM6mb.sf2") -> np.ndarray:
+def load_soundfont():
+    """ Load the default grand piano soundfont """
+    sf2_path = files(__package__).joinpath("TimGM6mb.sf2")
+    return str(sf2_path)
+
+def synthesize_midi(midi_path: str, sr: float = 22050, soundfont=None) -> np.ndarray:
+    """Synthesize a MIDI file to a floating point time series using tinysoundfont
+
+    Args:
+        midi_path (str): path to the MIDI file to synthesize
+        sr (float, optional): sampling rate to synthesize at. Defaults to 22050.
+        soundfont (_type_, optional): path to the soundfont used for synthesis. Defaults to None.
+
+    Returns:
+        np.ndarray: the synthesized audio time series
+    """
+    if soundfont is None:
+        soundfont = load_soundfont()
     synth = tinysoundfont.Synth(samplerate=sr)
     sfid = synth.sfload(soundfont)
 
@@ -62,7 +80,7 @@ def synthesize_midi(midi_path, sr: float = 22050, soundfont="data/TimGM6mb.sf2")
     audio = np.concatenate(chunks)
     return audio.mean(axis=1)
 
-def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont="data/TimGM6mb.sf2") -> Tuple[np.ndarray, int | float]:
+def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont=None) -> Tuple[np.ndarray, int | float]:
     """Synthesize a given music21 score to a floating point time series using fluidsynth
 
     Args:
@@ -75,6 +93,9 @@ def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont="data
         - y (np.ndarray) : audio time series.
         - sr (number > 0 [scalar]) : sampling rate of ``y``
     """
+    if soundfont is None:
+        soundfont = load_soundfont()
+
     fp = score.write('midi')
 
     return (synthesize_midi(fp, sr, soundfont), sr)
