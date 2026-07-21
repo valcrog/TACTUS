@@ -9,7 +9,6 @@ import librosa
 import pretty_midi
 import tinysoundfont
 from importlib.resources import files
-
 from .aligners import AlignmentResult
 
 def load_score(path: str, format: str = None) -> m21.stream.Score:
@@ -60,25 +59,32 @@ def synthesize_midi(midi_path: str, sr: float = 22050, soundfont=None) -> np.nda
     Returns:
         np.ndarray: the synthesized audio time series
     """
+    def _generate(synth, chunk_samples):
+        buf = synth.generate(chunk_samples)
+        arr = np.frombuffer(buf, dtype=np.float32).reshape(-1, 2)
+        return arr
+
     if soundfont is None:
         soundfont = load_soundfont()
+
     synth = tinysoundfont.Synth(samplerate=sr)
     sfid = synth.sfload(soundfont)
-
-    for chan in range(16):
-        synth.program_select(chan, sfid, 0, 0)
 
     seq = tinysoundfont.Sequencer(synth)
     seq.midi_load(midi_path)
 
+    chunk_samples = 4096
     chunks = []
     while not seq.is_empty():
-        chunks.append(np.array(synth.generate(1024)))
-    
-    chunks.append(np.array(synth.generate(int(sr)))) # release for the last notes
+        chunks.append(_generate(synth, chunk_samples))
 
-    audio = np.concatenate(chunks)
-    return audio.mean(axis=1)
+    for _ in range(20):
+        chunks.append(_generate(synth, chunk_samples))
+
+    audio = np.concatenate(chunks, axis=0)
+    audio = np.mean(audio, axis=1)
+
+    return audio
 
 def synthesize_score(score: m21.stream.Score, sr: float = 22050, soundfont=None) -> Tuple[np.ndarray, int | float]:
     """Synthesize a given music21 score to a floating point time series using fluidsynth
